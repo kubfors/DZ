@@ -1,31 +1,47 @@
-function filterAndFormatDates(dateStrings) {
-    const result = [];
-    dateStrings.forEach(dateStr => {let day, month, year;
-        if (dateStr.includes('-')) {
-            const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                day = parseInt(parts[0]);
-                month = parseInt(parts[1]);
-                year = parseInt(parts[2]);
+/**
+ * Проверяет номер банковской карты алгоритмом Луна
+ * @param {string} cardNumber - Номер карты в формате "4561-2612-1234-5464"
+ * @returns {boolean} - true если номер валиден, false если нет
+ */
+function validateCardNumber(cardNumber) {
+    // Проверка входных данных
+    if (!cardNumber || typeof cardNumber !== 'string') {
+        return false;
+    }
+    
+    // Удаляем все дефисы и пробелы, оставляем только цифры
+    const cleanNumber = cardNumber.replace(/[-\s]/g, '');
+    
+    // Проверяем, что остались только цифры
+    if (!/^\d+$/.test(cleanNumber)) {
+        return false;
+    }
+    
+    // Проверяем длину номера (стандартные карты 13-19 цифр)
+    if (cleanNumber.length < 13 || cleanNumber.length > 19) {
+        return false;
+    }
+    
+    let sum = 0;
+    let isEvenPosition = false;
+    
+    // Проходим по цифрам справа налево
+    for (let i = cleanNumber.length - 1; i >= 0; i--) {
+        let digit = parseInt(cleanNumber[i]);
+        
+        // Удваиваем каждую вторую цифру (начиная с предпоследней)
+        if (isEvenPosition) {
+            digit *= 2;
+            // Если результат больше 9, вычитаем 9 (эквивалентно сложению цифр)
+            if (digit > 9) {
+                digit -= 9;
             }
-        } else if (dateStr.includes('/')) {
-            const parts = dateStr.split('/');
-            if (parts.length === 3) {
-                month = parseInt(parts[0]);
-                day = parseInt(parts[1]);
-                year = parseInt(parts[2]);
-                }
         }
-        if (day && month && year) {
-            if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-                const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-                if (day <= daysInMonth[month - 1]) {
-                    const formattedDay = String(day).padStart(2, '0');
-                    const formattedMonth = String(month).padStart(2, '0');
-                    result.push(`${formattedDay}-${formattedMonth}-${year}`);
-                }
-            }
-        }
-    });
-    return result;
+        
+        sum += digit;
+        isEvenPosition = !isEvenPosition; // Переключаем флаг для следующей цифры
+    }
+    
+    // Номер валиден если сумма делится на 10 без остатка
+    return sum % 10 === 0;
 }
