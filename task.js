@@ -1,4 +1,4 @@
-/const ToDoList = {
+const ToDoList = {
     tasks: [],
     nextId: 1,
     
